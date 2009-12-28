@@ -34,19 +34,188 @@ if you don't export anything, such as for a purely object-oriented module.
 
 =head1 FUNCTIONS
 
-=head2 function1
+=head2 new
 
 =cut
 
-sub function1 {
-}
+sub new
+   {
+   my $class = shift;
+   return bless
+      {
+      _hoh       => shift(),
+      _hoh_stack => [],
+      _key_stack => [],
+      }, $class;
+   }
 
 =head2 function2
 
 =cut
 
-sub function2 {
-}
+sub keys
+   {
+   my ( $self ) = @_;
+
+   my @keys;
+
+   while ( defined( my $key = $self->each ) )
+      {
+      push @keys, $key;
+      }
+   
+   return @keys;
+   }
+   
+sub values
+   {
+   my ( $self ) = @_;
+
+   my @values;
+
+   EACH:
+      {
+      my ( $key, $value ) = $self->each;
+      if ( defined $key )
+         {
+         push @values, $value;
+         redo EACH;
+         }
+      }
+   
+   return @values;
+   }
+   
+sub fetch
+   {
+   my ( $self, $key_path ) = @_;
+
+   my $hoh = $self->{_hoh};
+   
+   my $value;
+   
+   for my $key ( @{ $key_path } )
+      {
+      $value = $hoh->{$key};
+      $hoh   = $value;
+      }
+   
+   return $value;
+   }
+
+sub store
+   {
+   my ( $self, $key_path, $value ) = @_;
+   
+   my $hoh = $self->{_hoh};
+
+   for my $key_i ( 0 .. $#{ $key_path } - 1 )
+      {
+      my $key = $key_path->[$key_i];
+      if ( ! defined $hoh->{$key} || ref $hoh->{$key} ne 'HASH' )
+         {
+         $hoh->{$key} = {};
+         }
+      $hoh = $hoh->{$key};
+      }
+      
+   return $hoh->{ $key_path->[-1] } = $value;
+   }
+   
+sub delete
+   {
+   my ( $self, $key_path ) = @_;
+
+   my $hoh = $self->{_hoh};
+   
+   my $exists = 1;
+
+   for my $key_i ( 0 .. $#{ $key_path } )
+      {
+      my $key = $key_path->[$key_i];
+      }
+
+   }
+
+sub exists
+   {
+   my ( $self, $key_path ) = @_;
+
+   my $hoh = $self->{_hoh};
+   
+   my $exists = 1;
+
+   for my $key_i ( 0 .. $#{ $key_path } )
+      {
+      my $key = $key_path->[$key_i];
+      if ( ! defined $hoh || ref $hoh ne 'HASH' || ! exists $hoh->{$key} )
+         {
+         $exists = '';
+         last;
+         }
+      $hoh = $hoh->{$key};
+      }
+      
+   return $exists;
+   }
+
+sub each
+   {
+   my ( $self ) = @_;
+   
+   if ( ! @{ $self->{_hoh_stack} } )
+      {
+      push @{ $self->{_hoh_stack} }, $self->{_hoh};
+      }
+      
+   return $self->_iterate;
+   }
+
+sub _iterate
+   {
+   my ( $self ) = @_;
+
+   ## find the top of the stack   
+   my $hash = ${ $self->{_hoh_stack} }[-1];
+   
+   ## iterate on the stack top
+   my ( $key, $val ) = CORE::each %{ $hash };
+   
+   ## if we're at the end of the stack top
+   if ( ! defined $key )
+      {
+      ## remove the stack top
+      pop @{ $self->{_hoh_stack} };
+      pop @{ $self->{_key_stack} };
+
+      ## iterate on the new stack top if available
+      if ( @{ $self->{_hoh_stack} } )
+         {
+         return $self->_iterate;
+         }
+      ## mark the stack as empty
+      ## return empty/undef
+      else
+         {
+         return;
+         }
+
+      }
+   
+   ## CORE::each() succeeded
+
+   ## if the value is a HASH, add it to the stack and iterate
+   if ( defined $val && ref $val eq 'HASH' )
+      {
+      push @{ $self->{_hoh_stack} }, $val;
+      push @{ $self->{_key_stack} }, $key;
+      return $self->_iterate;
+      }
+      
+   my $key_path = [ @{ $self->{_key_stack} }, $key ];
+
+   return wantarray ? ( $key_path, $val ) : $key_path;   
+   }
 
 =head1 AUTHOR
 
