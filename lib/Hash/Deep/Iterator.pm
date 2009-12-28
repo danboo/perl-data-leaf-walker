@@ -43,9 +43,9 @@ sub new
    my $class = shift;
    return bless
       {
-      _hoh       => shift(),
-      _hoh_stack => [],
-      _key_stack => [],
+      _data       => shift(),
+      _data_stack => [],
+      _key_path   => [],
       }, $class;
    }
 
@@ -90,7 +90,7 @@ sub fetch
    {
    my ( $self, $key_path ) = @_;
 
-   my $hoh = $self->{_hoh};
+   my $hoh = $self->{_data};
    
    my $value;
    
@@ -107,7 +107,7 @@ sub store
    {
    my ( $self, $key_path, $value ) = @_;
    
-   my $hoh = $self->{_hoh};
+   my $hoh = $self->{_data};
 
    for my $key_i ( 0 .. $#{ $key_path } - 1 )
       {
@@ -126,7 +126,7 @@ sub delete
    {
    my ( $self, $key_path ) = @_;
 
-   my $hoh = $self->{_hoh};
+   my $hoh = $self->{_data};
    
    my $exists = 1;
 
@@ -141,7 +141,7 @@ sub exists
    {
    my ( $self, $key_path ) = @_;
 
-   my $hoh = $self->{_hoh};
+   my $hoh = $self->{_data};
    
    my $exists = 1;
 
@@ -163,33 +163,70 @@ sub each
    {
    my ( $self ) = @_;
    
-   if ( ! @{ $self->{_hoh_stack} } )
+   if ( ! @{ $self->{_data_stack} } )
       {
-      push @{ $self->{_hoh_stack} }, $self->{_hoh};
+      push @{ $self->{_data_stack} }, $self->{_data};
       }
       
    return $self->_iterate;
    }
+
+{
+   
+my %array_tracker;
+   
+sub _each
+   {
+   my ( $data ) = @_;
+   
+   if ( ref $data eq 'HASH' )
+      {
+      return CORE::each %{ $data };
+      }
+   elsif ( ref $data eq 'ARRAY' )
+      {
+      $array_tracker{ $data } ||= 0;
+      if ( exists $data->[ $array_tracker{ $data } ] )
+         {
+         my $index = $array_tracker{ $data };
+         ++ $array_tracker{ $data };
+         return( $index, $data->[ $index ] );
+         }
+      else
+         {
+         $array_tracker{ $data } = 0;
+         return;
+         }
+      
+      }
+   else
+      {
+      die "Error: cannot call _each() on non-HASH/non-ARRAY data record";
+      }
+   
+   }
+   
+}
 
 sub _iterate
    {
    my ( $self ) = @_;
 
    ## find the top of the stack   
-   my $hash = ${ $self->{_hoh_stack} }[-1];
+   my $data = ${ $self->{_data_stack} }[-1];
    
    ## iterate on the stack top
-   my ( $key, $val ) = CORE::each %{ $hash };
+   my ( $key, $val ) = _each($data);
    
    ## if we're at the end of the stack top
    if ( ! defined $key )
       {
       ## remove the stack top
-      pop @{ $self->{_hoh_stack} };
-      pop @{ $self->{_key_stack} };
+      pop @{ $self->{_data_stack} };
+      pop @{ $self->{_key_path} };
 
       ## iterate on the new stack top if available
-      if ( @{ $self->{_hoh_stack} } )
+      if ( @{ $self->{_data_stack} } )
          {
          return $self->_iterate;
          }
@@ -205,14 +242,14 @@ sub _iterate
    ## CORE::each() succeeded
 
    ## if the value is a HASH, add it to the stack and iterate
-   if ( defined $val && ref $val eq 'HASH' )
+   if ( defined $val && ( ref $val eq 'HASH' || ref $val eq 'ARRAY' ) )
       {
-      push @{ $self->{_hoh_stack} }, $val;
-      push @{ $self->{_key_stack} }, $key;
+      push @{ $self->{_data_stack} }, $val;
+      push @{ $self->{_key_path} }, $key;
       return $self->_iterate;
       }
       
-   my $key_path = [ @{ $self->{_key_stack} }, $key ];
+   my $key_path = [ @{ $self->{_key_path} }, $key ];
 
    return wantarray ? ( $key_path, $val ) : $key_path;   
    }
