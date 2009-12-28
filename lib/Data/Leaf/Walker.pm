@@ -1,11 +1,11 @@
-package Hash::Deep::Iterator;
+package Data::Leaf::Walker;
 
 use warnings;
 use strict;
 
 =head1 NAME
 
-Hash::Deep::Iterator - The great new Hash::Deep::Iterator!
+Data::Leaf::Walker - The great new Data::Leaf::Walker!
 
 =head1 VERSION
 
@@ -22,9 +22,9 @@ Quick summary of what the module does.
 
 Perhaps a little code snippet.
 
-    use Hash::Deep::Iterator;
+    use Data::Leaf::Walker;
 
-    my $foo = Hash::Deep::Iterator->new();
+    my $foo = Data::Leaf::Walker->new();
     ...
 
 =head1 EXPORT
@@ -260,8 +260,8 @@ Dan Boorstein, C<< <danboo at cpan.org> >>
 
 =head1 BUGS
 
-Please report any bugs or feature requests to C<bug-hash-deep-iterator at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Hash-Deep-Iterator>.  I will be notified, and then you'll
+Please report any bugs or feature requests to C<bug-Data-Leaf-Walker at rt.cpan.org>, or through
+the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Data-Leaf-Walker>.  I will be notified, and then you'll
 automatically be notified of progress on your bug as I make changes.
 
 
@@ -271,7 +271,7 @@ automatically be notified of progress on your bug as I make changes.
 
 You can find documentation for this module with the perldoc command.
 
-    perldoc Hash::Deep::Iterator
+    perldoc Data::Leaf::Walker
 
 
 You can also look for information at:
@@ -280,19 +280,19 @@ You can also look for information at:
 
 =item * RT: CPAN's request tracker
 
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Hash-Deep-Iterator>
+L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Data-Leaf-Walker>
 
 =item * AnnoCPAN: Annotated CPAN documentation
 
-L<http://annocpan.org/dist/Hash-Deep-Iterator>
+L<http://annocpan.org/dist/Data-Leaf-Walker>
 
 =item * CPAN Ratings
 
-L<http://cpanratings.perl.org/d/Hash-Deep-Iterator>
+L<http://cpanratings.perl.org/d/Data-Leaf-Walker>
 
 =item * Search CPAN
 
-L<http://search.cpan.org/dist/Hash-Deep-Iterator/>
+L<http://search.cpan.org/dist/Data-Leaf-Walker/>
 
 =back
 
@@ -313,4 +313,4 @@ See http://dev.perl.org/licenses/ for more information.
 
 =cut
 
-1; # End of Hash::Deep::Iterator
+1; # End of Data::Leaf::Walker

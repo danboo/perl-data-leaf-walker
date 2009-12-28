@@ -5,10 +5,10 @@ use lib 'lib';
 
 use Test::More 'no_plan';
 
-use Hash::Deep::Iterator;
+use Data::Leaf::Walker;
 
 my @array = ( 15, 17, [ 19 ], [[[]]], [[[[21]]]], { a => 23 }, [ { b => 25 } ], [ { c => [ 27, 29 ] } ] );
-my $array = Hash::Deep::Iterator->new( \@array );
+my $array = Data::Leaf::Walker->new( \@array );
 
 for ( 1 .. 2 )
    {
@@ -82,7 +82,7 @@ for ( 1 .. 2 )
    }
 
 my %single = ( single => 13 );
-my $single = Hash::Deep::Iterator->new( \%single );
+my $single = Data::Leaf::Walker->new( \%single );
 
 for ( 1 .. 2 )
    {
@@ -239,7 +239,7 @@ sub hoh_clone
    {
    my ( $hoh ) = @_;
    
-   my $iter = Hash::Deep::Iterator->new( $hoh );
+   my $iter = Data::Leaf::Walker->new( $hoh );
    
    my $clone = {};
    

@@ -3,10 +3,10 @@ use warnings;
 use ExtUtils::MakeMaker;
 
 WriteMakefile(
-    NAME                => 'Hash::Deep::Iterator',
+    NAME                => 'Data::Leaf::Walker',
     AUTHOR              => q{Dan Boorstein <danboo@cpan.org>},
-    VERSION_FROM        => 'lib/Hash/Deep/Iterator.pm',
-    ABSTRACT_FROM       => 'lib/Hash/Deep/Iterator.pm',
+    VERSION_FROM        => 'lib/Data/Leaf/Walker.pm',
+    ABSTRACT_FROM       => 'lib/Data/Leaf/Walker.pm',
     ($ExtUtils::MakeMaker::VERSION >= 6.3002
       ? ('LICENSE'=> 'perl')
       : ()),
@@ -15,5 +15,5 @@ WriteMakefile(
         'Test::More' => 0,
     },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
-    clean               => { FILES => 'Hash-Deep-Iterator-*' },
+    clean               => { FILES => 'Data-Leaf-Walker-*' },
 );

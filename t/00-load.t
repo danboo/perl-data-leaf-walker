@@ -3,7 +3,7 @@
 use Test::More tests => 1;
 
 BEGIN {
-    use_ok( 'Hash::Deep::Iterator' );
+    use_ok( 'Data::Leaf::Walker' );
 }
 
-diag( "Testing Hash::Deep::Iterator $Hash::Deep::Iterator::VERSION, Perl $], $^X" );
+diag( "Testing Data::Leaf::Walker $Data::Leaf::Walker::VERSION, Perl $], $^X" );
