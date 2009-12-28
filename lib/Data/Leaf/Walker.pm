@@ -217,7 +217,7 @@ sub _iterate
    
    ## iterate on the stack top
    my ( $key, $val ) = _each($data);
-   
+
    ## if we're at the end of the stack top
    if ( ! defined $key )
       {
@@ -239,7 +239,7 @@ sub _iterate
 
       }
    
-   ## CORE::each() succeeded
+   ## _each() succeeded
 
    ## if the value is a HASH, add it to the stack and iterate
    if ( defined $val && ( ref $val eq 'HASH' || ref $val eq 'ARRAY' ) )
