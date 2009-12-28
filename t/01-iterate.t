@@ -7,6 +7,80 @@ use Test::More 'no_plan';
 
 use Hash::Deep::Iterator;
 
+my @array = ( 15, 17, [ 19 ], [[[]]], [[[[21]]]], { a => 23 }, [ { b => 25 } ], [ { c => [ 27, 29 ] } ] );
+my $array = Hash::Deep::Iterator->new( \@array );
+
+for ( 1 .. 2 )
+   {
+   
+   my ( $array_key, $array_value ) = $array->each;
+   
+   is_deeply( $array_key, [ 0 ], 'array key' );
+   is( $array_value, 15, 'array value' );
+   
+   ( $array_key, $array_value ) = $array->each;
+   
+   is_deeply( $array_key, [ 1 ], 'array key' );
+   is( $array_value, 17, 'array value' );
+
+   ( $array_key, $array_value ) = $array->each;
+   
+   is_deeply( $array_key, [ 2, 0 ], 'array key' );
+   is( $array_value, 19, 'array value' );
+
+   ( $array_key, $array_value ) = $array->each;
+   
+   is_deeply( $array_key, [ 4, 0, 0, 0, 0 ], 'array key' );
+   is( $array_value, 21, 'array value' );
+
+   ( $array_key, $array_value ) = $array->each;
+   
+   is_deeply( $array_key, [ 5, 'a' ], 'array key' );
+   is( $array_value, 23, 'array value' );
+
+   ( $array_key, $array_value ) = $array->each;
+   
+   is_deeply( $array_key, [ 6, 0, 'b' ], 'array key' );
+   is( $array_value, 25, 'array value' );
+
+   ( $array_key, $array_value ) = $array->each;
+   
+   is_deeply( $array_key, [ 7, 0, 'c', 0 ], 'array key' );
+   is( $array_value, 27, 'array value' );
+
+   ( $array_key, $array_value ) = $array->each;
+   
+   is_deeply( $array_key, [ 7, 0, 'c', 1 ], 'array key' );
+   is( $array_value, 29, 'array value' );
+
+   ( $array_key, $array_value ) = $array->each;
+
+   is( $array_key, undef, 'array key undef' );
+   is( $array_value, undef, 'array value undef' );
+   
+   my @exp_keys = (
+      [ 0 ],
+      [ 1 ],
+      [ 2, 0 ],
+      [ 4, 0, 0, 0, 0 ],
+      [ 5, 'a' ],
+      [ 6, 0, 'b' ],
+      [ 7, 0, 'c', 0 ],
+      [ 7, 0, 'c', 1 ],
+      );
+   
+   my @got_keys = $array->keys;
+   
+   is_deeply( \@got_keys, \@exp_keys, 'array keys' );
+   
+   my @exp_values = ( 15, 17, 19, 21, 23, 25, 27, 29 );
+   
+   my @got_values = $array->values;
+      
+   is_deeply( \@got_values, \@exp_values, 'array values' );
+   
+   }
+
 my %single = ( single => 13 );
 my $single = Hash::Deep::Iterator->new( \%single );
 
