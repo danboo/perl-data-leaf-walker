@@ -38,7 +38,7 @@ our $VERSION = '0.01';
 
 =head1 FUNCTIONS
 
-=head2 new
+=head2 new( $data )
 
 Construct a new C<Data::Leaf::Walker> instance.
 
@@ -63,7 +63,7 @@ sub new
       }, $class;
    }
 
-=head2 keys
+=head2 keys()
 
 Returns the list of all key paths.
 
@@ -85,7 +85,7 @@ sub keys
    return @keys;
    }
    
-=head2 values
+=head2 values()
 
 Returns the list of all leaf values.
 
@@ -112,7 +112,7 @@ sub values
    return @values;
    }
 
-=head2 fetch
+=head2 fetch( $key_path )
 
 Lookup the value corresponding to the given key path.
 
@@ -145,23 +145,96 @@ sub fetch
    return $value;
    }
 
+=head2 store( $key_path, $value )
+
+Set the value for the corresponding key path.
+
+   $walker->store( [ $key1, $index1, $index2, $key2 ], $value );
+
+=cut
+
 sub store
    {
    my ( $self, $key_path, $value ) = @_;
    
-   my $hoh = $self->{_data};
+   my $data = $self->{_data};
+   my $type = ref $data;
 
    for my $key_i ( 0 .. $#{ $key_path } - 1 )
       {
-      my $key = $key_path->[$key_i];
-      if ( ! defined $hoh->{$key} || ref $hoh->{$key} ne 'HASH' )
+      my $key  = $key_path->[$key_i];
+         $type = ref $data;
+      my $autovivify_error;
+      
+      VALID:
          {
-         $hoh->{$key} = {};
+         if ( $type eq 'HASH' )
+            {
+
+            if ( ! exists $data->{$key} )
+               {
+               $autovivify_error = 1;
+               last VALID;
+               }
+               
+            if ( ! defined $data->{$key} )
+               {
+               $autovivify_error = 1;
+               last VALID;
+               }
+
+            my $nested_type = ref $data->{$key};
+            if ( ! ( $nested_type eq 'HASH' || $nested_type eq 'ARRAY' ) )
+               {
+               $autovivify_error = 1;
+               last VALID;
+               }
+               
+            $data = $data->{$key};
+
+            }
+         elsif ( $type eq 'ARRAY' )
+            {
+
+            if ( ! exists $data->[$key] )
+               {
+               $autovivify_error = 1;
+               last VALID;
+               }
+               
+            if ( ! defined $data->[$key] )
+               {
+               $autovivify_error = 1;
+               last VALID;
+               }
+
+            my $nested_type = ref $data->[$key];
+            if ( ! ( $nested_type eq 'HASH' || $nested_type eq 'ARRAY' ) )
+               {
+               $autovivify_error = 1;
+               last VALID;
+               }
+               
+            $data = $data->[$key];
+
+            }
          }
-      $hoh = $hoh->{$key};
+         
+      if ( $autovivify_error )
+         {
+         die "Error: cannot autovivify arbitrarily";
+         }
+
       }
       
-   return $hoh->{ $key_path->[-1] } = $value;
+   if ( $type eq 'HASH' )
+      {
+      return $data->{ $key_path->[-1] } = $value;
+      }
+   elsif  ( $type eq 'ARRAY' )
+      {
+      return $data->[ $key_path->[-1] ] = $value;
+      }
    }
    
 sub delete
