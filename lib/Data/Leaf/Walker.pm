@@ -5,7 +5,7 @@ use strict;
 
 =head1 NAME
 
-Data::Leaf::Walker - The great new Data::Leaf::Walker!
+Data::Leaf::Walker - Walk the leaves of arbitrarily deep nested data structures.
 
 =head1 VERSION
 
@@ -15,26 +15,40 @@ Version 0.01
 
 our $VERSION = '0.01';
 
-
 =head1 SYNOPSIS
 
-Quick summary of what the module does.
+   $data   = {
+      a    => 'hash',
+      or   => [ 'array', 'ref' ],
+      with => { arbitrary => 'nesting' },
+      };
 
-Perhaps a little code snippet.
-
-    use Data::Leaf::Walker;
-
-    my $foo = Data::Leaf::Walker->new();
-    ...
-
-=head1 EXPORT
-
-A list of functions that can be exported.  You can delete this section
-if you don't export anything, such as for a purely object-oriented module.
+   $walker = Data::Leaf::Walker->new( $data );
+   
+   while ( my ( $k, $v ) = $walker->each )
+      {
+      print "@{ $k } : $v\n";
+      }
+      
+   ## output might be
+   ## a : hash
+   ## or 0 : array
+   ## or 1 : ref
+   ## with arbitrary : nesting
 
 =head1 FUNCTIONS
 
 =head2 new
+
+Construct a new C<Data::Leaf::Walker> instance.
+
+   $data   = {
+      a    => 'hash',
+      or   => [ 'array', 'ref' ],
+      with => { arbitrary => 'nesting' },
+      };
+
+   $walker = Data::Leaf::Walker->new( $data );
 
 =cut
 
@@ -49,7 +63,11 @@ sub new
       }, $class;
    }
 
-=head2 function2
+=head2 keys
+
+Returns the list of all key paths.
+
+   my @key_paths = $walker->keys;
 
 =cut
 
@@ -67,6 +85,14 @@ sub keys
    return @keys;
    }
    
+=head2 values
+
+Returns the list of all leaf values.
+
+   my @leaf_values = $walker->values;
+
+=cut
+
 sub values
    {
    my ( $self ) = @_;
@@ -85,19 +111,35 @@ sub values
    
    return @values;
    }
-   
+
+=head2 fetch
+
+Lookup the value corresponding to the given key path.
+
+   my $leaf = $walker->fetch( [ $key1, $index1, $index2, $key2 ] );
+
+=cut
+
 sub fetch
    {
    my ( $self, $key_path ) = @_;
 
-   my $hoh = $self->{_data};
+   my $data = $self->{_data};
    
    my $value;
    
    for my $key ( @{ $key_path } )
       {
-      $value = $hoh->{$key};
-      $hoh   = $value;
+      my $type = ref $data;
+      if ( $type eq 'ARRAY' )
+         {
+         $value = $data->[$key];
+         }
+      elsif ( $type eq 'HASH' )
+         {
+         $value = $data->{$key};
+         }
+      $data = $value;
       }
    
    return $value;
