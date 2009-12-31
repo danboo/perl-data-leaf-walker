@@ -154,89 +154,25 @@ sub store
    {
    my ( $self, $key_path, $value ) = @_;
    
-   my $data = $self->{_data};
-   my $type = ref $data;
-
-   for my $key_i ( 0 .. $#{ $key_path } - 1 )
-      {
-      my $key  = $key_path->[$key_i];
-
-      my $autovivify_error;
-
-      VALID:
-         {
-         if ( $type eq 'HASH' )
-            {
-
-            if ( ! exists $data->{$key} )
-               {
-               $autovivify_error = 1;
-               last VALID;
-               }
-               
-            if ( ! defined $data->{$key} )
-               {
-               $autovivify_error = 2;
-               last VALID;
-               }
-
-            my $nested_type = ref $data->{$key};
-            if ( ! ( $nested_type eq 'HASH' || $nested_type eq 'ARRAY' ) )
-               {
-               $autovivify_error = 3;
-               last VALID;
-               }
-               
-            $data = $data->{$key};
-
-            }
-         elsif ( $type eq 'ARRAY' )
-            {
-
-            if ( ! exists $data->[$key] )
-               {
-               $autovivify_error = 4;
-               last VALID;
-               }
-               
-            if ( ! defined $data->[$key] )
-               {
-               $autovivify_error = 5;
-               last VALID;
-               }
-
-            my $nested_type = ref $data->[$key];
-            if ( ! ( $nested_type eq 'HASH' || $nested_type eq 'ARRAY' ) )
-               {
-               $autovivify_error = 6;
-               last VALID;
-               }
-               
-            $data = $data->[$key];
-
-            }
-
-         $type = ref $data;
-
-         }
-         
-      if ( $autovivify_error )
-         {
-         die "Error($autovivify_error): cannot autovivify key ($key) arbitrarily (@{ $key_path })";
-         }
-
-      }
-      
+   my @store_path = @{ $key_path };
+   
+   my $twig_key = pop @store_path;
+   
+   my $twig = $self->fetch( \@store_path );
+   
+   my $type = ref $twig;
+   
    if ( $type eq 'HASH' )
       {
-      return $data->{ $key_path->[-1] } = $value;
+      return $twig->{ $twig_key } = $value;
       }
    elsif  ( $type eq 'ARRAY' )
       {
-      return $data->[ $key_path->[-1] ] = $value;
+      return $twig->[ $twig_key ] = $value;
       }
-   }
    
+   }
+
 sub delete
    {
    my ( $self, $key_path ) = @_;
