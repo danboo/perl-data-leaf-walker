@@ -126,23 +126,20 @@ sub fetch
 
    my $data = $self->{_data};
    
-   my $value;
-   
    for my $key ( @{ $key_path } )
       {
       my $type = ref $data;
       if ( $type eq 'ARRAY' )
          {
-         $value = $data->[$key];
+         $data = $data->[$key];
          }
       elsif ( $type eq 'HASH' )
          {
-         $value = $data->{$key};
+         $data = $data->{$key};
          }
-      $data = $value;
       }
    
-   return $value;
+   return $data;
    }
 
 =head2 store( $key_path, $value )
