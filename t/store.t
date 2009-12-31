@@ -7,7 +7,7 @@ use Test::More 'no_plan';
 
 use Data::Leaf::Walker;
 
-my @exp_data =
+my @got_data =
    (
    111,
    112,
@@ -24,6 +24,25 @@ my @exp_data =
    aao => 127,
    },
    128,
+   );
+
+my @exp_data =
+   (
+   211,
+   212,
+   [ 213, 214 ],
+   [ [ 215, { aaa => 216 } ] ],
+   {
+   aab => 217,
+   aac => 218,
+   aad => { aae => { aaf => [[ 219 ]] }, aag => 220 },
+   aah => [ 221, 222 ],
+   aai => [[]],
+   aaj => [ 223, 224, { aak => 225 }, { aal => 226 } ],
+   aam => { aan => {} },
+   aao => 227,
+   },
+   228,
    );
 
 my @exp_keys =
@@ -47,8 +66,6 @@ my @exp_keys =
    [ qw/ 4 aao / ],
    [ qw/ 5 / ],
    );
-   
-my @got_data;
    
 my $walker = Data::Leaf::Walker->new( \@got_data );
 

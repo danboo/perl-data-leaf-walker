@@ -163,9 +163,9 @@ sub store
    for my $key_i ( 0 .. $#{ $key_path } - 1 )
       {
       my $key  = $key_path->[$key_i];
-         $type = ref $data;
+
       my $autovivify_error;
-      
+
       VALID:
          {
          if ( $type eq 'HASH' )
@@ -179,14 +179,14 @@ sub store
                
             if ( ! defined $data->{$key} )
                {
-               $autovivify_error = 1;
+               $autovivify_error = 2;
                last VALID;
                }
 
             my $nested_type = ref $data->{$key};
             if ( ! ( $nested_type eq 'HASH' || $nested_type eq 'ARRAY' ) )
                {
-               $autovivify_error = 1;
+               $autovivify_error = 3;
                last VALID;
                }
                
@@ -198,31 +198,34 @@ sub store
 
             if ( ! exists $data->[$key] )
                {
-               $autovivify_error = 1;
+               $autovivify_error = 4;
                last VALID;
                }
                
             if ( ! defined $data->[$key] )
                {
-               $autovivify_error = 1;
+               $autovivify_error = 5;
                last VALID;
                }
 
             my $nested_type = ref $data->[$key];
             if ( ! ( $nested_type eq 'HASH' || $nested_type eq 'ARRAY' ) )
                {
-               $autovivify_error = 1;
+               $autovivify_error = 6;
                last VALID;
                }
                
             $data = $data->[$key];
 
             }
+
+         $type = ref $data;
+
          }
          
       if ( $autovivify_error )
          {
-         die "Error: cannot autovivify arbitrarily";
+         die "Error($autovivify_error): cannot autovivify key ($key) arbitrarily (@{ $key_path })";
          }
 
       }
