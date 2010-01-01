@@ -10,3 +10,7 @@ t/pod.t
 t/each.t
 t/fetch.t
 t/store.t
+t/delete.t
+t/exists.t
+t/keys.t
+t/values.t
