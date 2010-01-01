@@ -99,16 +99,11 @@ sub values
 
    my @values;
 
-   EACH:
+   while ( my ($key, $value) = $self->each )
       {
-      my ( $key, $value ) = $self->each;
-      if ( defined $key )
-         {
-         push @values, $value;
-         redo EACH;
-         }
+      push @values, $value;
       }
-   
+
    return @values;
    }
 
@@ -160,6 +155,11 @@ sub store
    
    my $twig = $self->fetch( \@store_path );
    
+   if ( ! defined $twig )
+      {
+      die "Error: cannot autovivify arbitrarily";
+      }
+   
    my $type = ref $twig;
    
    if ( $type eq 'HASH' )
@@ -173,42 +173,85 @@ sub store
    
    }
 
+=head2 delete( $key_path, $value )
+
+Delete the leaf key in the corresponding key path. Only works for a HASH leaf,
+dies otherwise.
+
+   $walker->delete( [ $key1, $index1, $index2, $key2 ] );
+
+=cut
+
 sub delete
    {
    my ( $self, $key_path ) = @_;
 
-   my $hoh = $self->{_data};
+   my @delete_path = @{ $key_path };
    
-   my $exists = 1;
-
-   for my $key_i ( 0 .. $#{ $key_path } )
+   my $twig_key = pop @delete_path;
+   
+   my $twig = $self->fetch( \@delete_path );
+   
+   defined $twig || return;
+   
+   my $type = ref $twig;
+   
+   if ( $type eq 'HASH' )
       {
-      my $key = $key_path->[$key_i];
+      return delete $twig->{ $twig_key };
       }
-
+   elsif  ( $type eq 'ARRAY' )
+      {
+      die "Error: cannot delete() from an ARRAY leaf";
+      }
+   
    }
+
+=head2 exists( $key_path )
+
+Returns true if the corresponding key path exists.
+
+   $walker->exists( [ $key1, $index1, $index2, $key2 ] );
+
+=cut
 
 sub exists
    {
    my ( $self, $key_path ) = @_;
 
-   my $hoh = $self->{_data};
+   my @exists_path = @{ $key_path };
    
-   my $exists = 1;
-
-   for my $key_i ( 0 .. $#{ $key_path } )
+   my $twig_key = pop @exists_path;
+   
+   my $twig = $self->fetch( \@exists_path );
+   
+   defined $twig || return;
+   
+   my $type = ref $twig;
+   
+   if ( $type eq 'HASH' )
       {
-      my $key = $key_path->[$key_i];
-      if ( ! defined $hoh || ref $hoh ne 'HASH' || ! exists $hoh->{$key} )
-         {
-         $exists = '';
-         last;
-         }
-      $hoh = $hoh->{$key};
+      return exists $twig->{ $twig_key };
       }
-      
-   return $exists;
+   elsif  ( $type eq 'ARRAY' )
+      {
+      return exists $twig->[ $twig_key ];
+      }
+   
    }
+
+=head2 each()
+
+Iterates over the leaf values of the nested HASH or ARRAY structures. Much like
+the built-in C<each %hash> function, the iterators for individual structures are
+global and the caller should be careful about what state they are in. Invoking
+the C<keys()> or C<values()> methods will reset the iterators.
+
+   while ( my ( $key_path, $value ) = $walker->each )
+      {
+      }
+
+=cut
 
 sub each
    {
