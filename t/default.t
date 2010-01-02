@@ -63,8 +63,8 @@ EACH:
       }
       
    @keys = map  { $_->[0] }
-              sort { $a->[1] cmp $b->[1] }
-              map  { [ $_, join(':', @{$_}) ] } @keys;
+           sort { $a->[1] cmp $b->[1] }
+           map  { [ $_, join(':', @{$_}) ] } @keys;
              
    is_deeply( \@keys, \@exp_keys, "each - keys" );
 
@@ -77,11 +77,9 @@ EACH:
 KEYS:
    {
 
-   my @keys = $walker->keys;
-
-   @keys = map  { $_->[0] }
+   my @keys = map  { $_->[0] }
               sort { $a->[1] cmp $b->[1] }
-              map  { [ $_, join(':', @{$_}) ] } @keys;
+              map  { [ $_, join(':', @{$_}) ] } $walker->keys;
              
    is_deeply( \@keys, \@exp_keys, "keys" );
 
@@ -90,10 +88,7 @@ KEYS:
 VALUES:
    {
 
-   my @values = $walker->values;
-
-   @values = sort @values;
-
+   my @values = sort $walker->values;
    is_deeply( \@values, [ 111 .. 128 ], "values" );
 
    }
@@ -111,6 +106,17 @@ FETCH:
       is( $value, $key_path_i + 111, "fetch - @{ $key_path } : $value" );
       
       }
+      
+   my $top_undef = $walker->fetch( [ qw/ 1000 / ] );
+   is( $top_undef, undef, 'fetch - top not exist' );
+
+   my $deep_undef = $walker->fetch( [ qw/ 3 0 1 potato / ] );
+   is( $deep_undef, undef, 'fetch - deep not exist' );
+   
+   eval { $walker->fetch( [ qw/ 3 0 0 potato / ] ) };
+   my $err = $@;
+   like( $err, qr/\A\QError: cannot lookup key (potato) in invalid ref type ()/,
+         'fetch - invalid path' );
 
    }
 
@@ -138,14 +144,12 @@ STORE:
 
    for my $key_path_i ( 0 .. $#exp_keys )
       {
-      
       my $key_path = $exp_keys[$key_path_i];
-      
       $walker->store( $key_path, $key_path_i + 211 );
-      
       }
 
    is_deeply( \@orig, \@exp_data, 'store' );   
+
    }
    
 EXISTS:
@@ -153,17 +157,24 @@ EXISTS:
 
    for my $key_path ( @exp_keys )
       {
-      
       ok( $walker->fetch( $key_path ), "exists - @{ $key_path }" );
-      
       }
+
+   my $top = $walker->exists( [ qw/ 1000 / ] );
+   ok( ! $top, 'exists - top not exist' );
+
+   my $deep = $walker->exists( [ qw/ 3 0 1 potato / ] );
+   ok( ! $deep, 'exists - deep not exist' );
+   
+   my $invalid = $walker->exists( [ qw/ 3 0 0 potato / ] );
+   ok( ! $invalid, 'exists - invalid not exist' );
 
    }
 
 DELETE:
    {
    
-   $walker->delete( [ qw/ 4 aaj 3 aal / ] );
+   my $ret = $walker->delete( [ qw/ 4 aaj 3 aal / ] );
    
    my @exp_data =
       (
@@ -184,6 +195,7 @@ DELETE:
       228,
       );
 
-   is_deeply( \@orig, \@exp_data, 'delete' );   
+   is_deeply( \@orig, \@exp_data, 'delete' );
+   is( $ret, 226, 'delete - return' );
 
    }
