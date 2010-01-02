@@ -8,3 +8,4 @@ t/00-load.t
 t/pod-coverage.t
 t/pod.t
 t/default.t
+META.yml
