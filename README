@@ -1,16 +1,41 @@
 Data-Leaf-Walker
 
-The README is used to introduce the module and provide instructions on
-how to install the module, any machine dependencies it may have (for
-example C compilers and installed libraries) and any other information
-that should be provided before the module is installed.
+SYNOPSIS
 
-A README file is required for CPAN modules since CPAN extracts the README
-file from a module distribution so that people browsing the archive
-can use it to get an idea of the module's uses. It is usually a good idea
-to provide version information here so that people can decide whether
-fixes for the module are worth downloading.
+   $data   = {
+      a    => 'hash',
+      or   => [ 'array', 'ref' ],
+      with => { arbitrary => 'nesting' },
+      };
 
+   $walker = Data::Leaf::Walker->new( $data );
+   
+   while ( my ( $k, $v ) = $walker->each )
+      {
+      print "@{ $k } : $v\n";
+      }
+      
+   ## output might be
+   ## a : hash
+   ## or 0 : array
+   ## or 1 : ref
+   ## with arbitrary : nesting
+
+DESCRIPTION
+
+C<Data::Leaf::Walker> provides simplified access to nested data structures. It
+operates on key paths in place of keys. A key path is a list of HASH and ARRAY
+indexes which define a path through your data structure. For example, in the
+following data structure, the value corresponding to key path C<[ 0, 'foo' ]> is
+'bar': 
+
+   $aoh = [ { foo => 'bar' } ];
+
+You can get and set that value like so:
+
+   $walker = Data::Leaf::Walker->new( $aoh );      ## create the walker
+   $bar    = $walker->fetch( [ 0, 'foo' ] );       ## get the value 'bar'
+   $walker->store( [ 0, 'foo'], 'baz' );           ## change value to 'baz'
 
 INSTALLATION
 

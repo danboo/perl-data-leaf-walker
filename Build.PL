@@ -12,6 +12,13 @@ my $builder = Module::Build->new(
     },
     add_to_cleanup      => [ 'Data-Leaf-Walker-*' ],
     create_makefile_pl => 'traditional',
+    meta_merge          =>
+       {
+       resources =>
+          {
+          repository  => 'http://github.com/danboo/perl-data-leaf-walker/',
+          }
+       },
 );
 
 $builder->create_build_script();

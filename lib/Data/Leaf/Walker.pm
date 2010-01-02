@@ -36,6 +36,22 @@ our $VERSION = '0.01';
    ## or 1 : ref
    ## with arbitrary : nesting
 
+=head1 DESCRIPTION
+
+C<Data::Leaf::Walker> provides simplified access to nested data structures. It
+operates on key paths in place of keys. A key path is a list of HASH and ARRAY
+indexes which define a path through your data structure. For example, in the
+following data structure, the value corresponding to key path C<[ 0, 'foo' ]> is
+'bar': 
+
+   $aoh = [ { foo => 'bar' } ];
+
+You can get and set that value like so:
+
+   $walker = Data::Leaf::Walker->new( $aoh );      ## create the walker
+   $bar    = $walker->fetch( [ 0, 'foo' ] );       ## get the value 'bar'
+   $walker->store( [ 0, 'foo'], 'baz' );           ## change value to 'baz'
+
 =head1 FUNCTIONS
 
 =head2 new( $data )
@@ -63,11 +79,37 @@ sub new
       }, $class;
    }
 
+=head2 each()
+
+Iterates over the leaf values of the nested HASH or ARRAY structures. Much like
+the built-in C<each %hash> function, the iterators for individual structures are
+global and the caller should be careful about what state they are in. Invoking
+the C<keys()> or C<values()> methods will reset the iterators.
+
+   while ( my ( $key_path, $value ) = $walker->each )
+      {
+      ## do something
+      }
+
+=cut
+
+sub each
+   {
+   my ( $self ) = @_;
+   
+   if ( ! @{ $self->{_data_stack} } )
+      {
+      push @{ $self->{_data_stack} }, $self->{_data};
+      }
+      
+   return $self->_iterate;
+   }
+
 =head2 keys()
 
 Returns the list of all key paths.
 
-   my @key_paths = $walker->keys;
+   @key_paths = $walker->keys;
 
 =cut
 
@@ -89,7 +131,7 @@ sub keys
 
 Returns the list of all leaf values.
 
-   my @leaf_values = $walker->values;
+   @leaf_values = $walker->values;
 
 =cut
 
@@ -109,9 +151,10 @@ sub values
 
 =head2 fetch( $key_path )
 
-Lookup the value corresponding to the given key path.
+Lookup the value corresponding to the given key path. If an individual key
+attempts to fetch from an invalid the fetch method dies.
 
-   my $leaf = $walker->fetch( [ $key1, $index1, $index2, $key2 ] );
+   $leaf = $walker->fetch( [ $key1, $index1, $index2, $key2 ] );
 
 =cut
 
@@ -180,10 +223,10 @@ sub store
    
    }
 
-=head2 delete( $key_path, $value )
+=head2 delete( $key_path )
 
 Delete the leaf key in the corresponding key path. Only works for a HASH leaf,
-dies otherwise.
+dies otherwise. Returns the deleted value.
 
    $walker->delete( [ $key1, $index1, $index2, $key2 ] );
 
@@ -245,31 +288,6 @@ sub exists
       return exists $twig->[ $twig_key ];
       }
    
-   }
-
-=head2 each()
-
-Iterates over the leaf values of the nested HASH or ARRAY structures. Much like
-the built-in C<each %hash> function, the iterators for individual structures are
-global and the caller should be careful about what state they are in. Invoking
-the C<keys()> or C<values()> methods will reset the iterators.
-
-   while ( my ( $key_path, $value ) = $walker->each )
-      {
-      }
-
-=cut
-
-sub each
-   {
-   my ( $self ) = @_;
-   
-   if ( ! @{ $self->{_data_stack} } )
-      {
-      push @{ $self->{_data_stack} }, $self->{_data};
-      }
-      
-   return $self->_iterate;
    }
 
 {
@@ -366,7 +384,15 @@ the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Data-Leaf-
 automatically be notified of progress on your bug as I make changes.
 
 
+=head1 PLANS
 
+=over 3
+
+=item * add max_depth, min_depth, type and twig limiters for C<each>, C<keys>, C<values>
+
+=item * optional autovivification (Data::Peek, Scalar::Util, String::Numeric)
+
+=back
 
 =head1 SUPPORT
 
