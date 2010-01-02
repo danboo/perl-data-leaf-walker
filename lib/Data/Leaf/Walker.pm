@@ -70,7 +70,7 @@ Construct a new C<Data::Leaf::Walker> instance.
 
 sub new
    {
-   my $class = shift;
+   my $class = shift();
    return bless
       {
       _data       => shift(),
@@ -154,7 +154,8 @@ sub values
 Lookup the value corresponding to the given key path. If an individual key
 attempts to fetch from an invalid the fetch method dies.
 
-   $leaf = $walker->fetch( [ $key1, $index1, $index2, $key2 ] );
+   $key_path = [ $key1, $index1, $index2, $key2 ];
+   $leaf     = $walker->fetch( $key_path );
 
 =cut
 
@@ -191,7 +192,8 @@ sub fetch
 
 Set the value for the corresponding key path.
 
-   $walker->store( [ $key1, $index1, $index2, $key2 ], $value );
+   $key_path = [ $key1, $index1, $index2, $key2 ];
+   $walker->store( $key_path, $value );
 
 =cut
 
@@ -228,7 +230,8 @@ sub store
 Delete the leaf key in the corresponding key path. Only works for a HASH leaf,
 dies otherwise. Returns the deleted value.
 
-   $walker->delete( [ $key1, $index1, $index2, $key2 ] );
+   $key_path  = [ $key1, $index1, $index2, $key2 ];
+   $old_value = $walker->delete( $key_path );
 
 =cut
 
@@ -261,7 +264,11 @@ sub delete
 
 Returns true if the corresponding key path exists.
 
-   $walker->exists( [ $key1, $index1, $index2, $key2 ] );
+   $key_path = [ $key1, $index1, $index2, $key2 ];
+   if ( $walker->exists( $key_path ) )
+      {
+      ## do something
+      }
 
 =cut
 
