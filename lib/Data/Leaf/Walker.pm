@@ -123,7 +123,9 @@ sub fetch
    
    for my $key ( @{ $key_path } )
       {
+
       my $type = ref $data;
+      
       if ( $type eq 'ARRAY' )
          {
          $data = $data->[$key];
@@ -132,8 +134,13 @@ sub fetch
          {
          $data = $data->{$key};
          }
+      else
+         {
+         die "Error: cannot lookup key ($key) in invalid ref type ($type)";
+         }
+         
       }
-   
+      
    return $data;
    }
 
