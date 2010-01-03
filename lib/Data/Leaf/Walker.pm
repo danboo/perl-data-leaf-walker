@@ -42,7 +42,7 @@ C<Data::Leaf::Walker> provides simplified access to nested data structures. It
 operates on key paths in place of keys. A key path is a list of HASH and ARRAY
 indexes which define a path through your data structure. For example, in the
 following data structure, the value corresponding to key path C<[ 0, 'foo' ]> is
-'bar': 
+C<bar>: 
 
    $aoh = [ { foo => 'bar' } ];
 
@@ -70,12 +70,13 @@ Construct a new C<Data::Leaf::Walker> instance.
 
 sub new
    {
-   my $class = shift();
+   my ( $class, $data, %opts ) = @_;
    return bless
       {
-      _data       => shift(),
+      _data       => $data,
       _data_stack => [],
       _key_path   => [],
+      _opts       => \%opts,
       }, $class;
    }
 
@@ -298,6 +299,60 @@ sub exists
    
    }
 
+sub _iterate
+   {
+   my ( $self ) = @_;
+
+   ## find the top of the stack   
+   my $data = ${ $self->{_data_stack} }[-1];
+   
+   ## iterate on the stack top
+   my ( $key, $val ) = _each($data);
+
+   ## if we're at the end of the stack top
+   if ( ! defined $key )
+      {
+      ## remove the stack top
+      pop @{ $self->{_data_stack} };
+      pop @{ $self->{_key_path} };
+
+      ## iterate on the new stack top if available
+      if ( @{ $self->{_data_stack} } )
+         {
+         return $self->_iterate;
+         }
+      ## mark the stack as empty
+      ## return empty/undef
+      else
+         {
+         return;
+         }
+
+      }
+   
+   ## _each() succeeded
+
+   ## return right away if we're at max_depth   
+   my $max_depth = $self->{_opts}{max_depth};
+   if ( defined $max_depth && @{ $self->{_key_path} } + 1 >= $max_depth )
+      {
+      my $key_path = [ @{ $self->{_key_path} }, $key ];
+      return wantarray ? ( $key_path, $val ) : $key_path;
+      }
+
+   ## if the value is a HASH, add it to the stack and iterate
+   if ( defined $val && ( ref $val eq 'HASH' || ref $val eq 'ARRAY' ) )
+      {
+      push @{ $self->{_data_stack} }, $val;
+      push @{ $self->{_key_path} }, $key;
+      return $self->_iterate;
+      }
+      
+   my $key_path = [ @{ $self->{_key_path} }, $key ];
+
+   return wantarray ? ( $key_path, $val ) : $key_path;   
+   }
+
 {
    
 my %array_tracker;
@@ -335,52 +390,6 @@ sub _each
    
 }
 
-sub _iterate
-   {
-   my ( $self ) = @_;
-
-   ## find the top of the stack   
-   my $data = ${ $self->{_data_stack} }[-1];
-   
-   ## iterate on the stack top
-   my ( $key, $val ) = _each($data);
-
-   ## if we're at the end of the stack top
-   if ( ! defined $key )
-      {
-      ## remove the stack top
-      pop @{ $self->{_data_stack} };
-      pop @{ $self->{_key_path} };
-
-      ## iterate on the new stack top if available
-      if ( @{ $self->{_data_stack} } )
-         {
-         return $self->_iterate;
-         }
-      ## mark the stack as empty
-      ## return empty/undef
-      else
-         {
-         return;
-         }
-
-      }
-   
-   ## _each() succeeded
-
-   ## if the value is a HASH, add it to the stack and iterate
-   if ( defined $val && ( ref $val eq 'HASH' || ref $val eq 'ARRAY' ) )
-      {
-      push @{ $self->{_data_stack} }, $val;
-      push @{ $self->{_key_path} }, $key;
-      return $self->_iterate;
-      }
-      
-   my $key_path = [ @{ $self->{_key_path} }, $key ];
-
-   return wantarray ? ( $key_path, $val ) : $key_path;   
-   }
-
 =head1 AUTHOR
 
 Dan Boorstein, C<< <danboo at cpan.org> >>
@@ -400,8 +409,6 @@ within the leaf walker, calling the C<keys()> or C<values()> methods, for the
 purpose of resetting the iterator, may not be able to reach the hash. A second
 reset attempt should work as expected. If you consistently use the leaf walker
 instance to access the data structure, you should be fine.
-
-=back
 
 =head1 PLANS
 
