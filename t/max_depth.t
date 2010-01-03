@@ -134,6 +134,30 @@ VALUES:
 
    }
 
+## switch exp keys back to leaf mode
+
+@exp_keys =
+   (
+   [ qw/ 0 / ],
+   [ qw/ 1 / ],
+   [ qw/ 2 0 / ],
+   [ qw/ 2 1 / ],
+   [ qw/ 3 0 0 / ],
+   [ qw/ 3 0 1 aaa / ],
+   [ qw/ 4 aab / ],
+   [ qw/ 4 aac / ],
+   [ qw/ 4 aad aae aaf 0 0 / ],
+   [ qw/ 4 aad aag / ],
+   [ qw/ 4 aah 0 / ],
+   [ qw/ 4 aah 1 / ],
+   [ qw/ 4 aaj 0 / ],
+   [ qw/ 4 aaj 1 / ],
+   [ qw/ 4 aaj 2 aak / ],
+   [ qw/ 4 aaj 3 aal / ],
+   [ qw/ 4 aao / ],
+   [ qw/ 5 / ],
+   );
+
 FETCH:
    {
 
@@ -160,8 +184,6 @@ FETCH:
          'fetch - invalid path' );
 
    }
-
-exit;
 
 STORE:
    {
