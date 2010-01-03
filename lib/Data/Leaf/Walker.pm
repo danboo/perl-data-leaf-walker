@@ -84,7 +84,8 @@ sub new
 Iterates over the leaf values of the nested HASH or ARRAY structures. Much like
 the built-in C<each %hash> function, the iterators for individual structures are
 global and the caller should be careful about what state they are in. Invoking
-the C<keys()> or C<values()> methods will reset the iterators.
+the C<keys()> or C<values()> methods will reset the iterators. In scalar
+context it returns the key path only.
 
    while ( my ( $key_path, $value ) = $walker->each )
       {
@@ -384,12 +385,23 @@ sub _iterate
 
 Dan Boorstein, C<< <danboo at cpan.org> >>
 
-=head1 BUGS
+=head1 CAVEATS
 
-Please report any bugs or feature requests to C<bug-Data-Leaf-Walker at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Data-Leaf-Walker>.  I will be notified, and then you'll
-automatically be notified of progress on your bug as I make changes.
+=head2 Global Iterators
 
+Because the iterators are global, data structures which contain cyclical
+references or repeated sub structures are not handled correctly.
+
+=head2 Hash Iterators
+
+If you iterate directly over a hash which is also contained in your leaf walker
+instance, be sure to leave it in a proper state. If that hash is a sub reference
+within the leaf walker, calling the C<keys()> or C<values()> methods, for the
+purpose of resetting the iterator, may not be able to reach the hash. A second
+reset attempt should work as expected. If you consistently use the leaf walker
+instance to access the data structure, you should be fine.
+
+=back
 
 =head1 PLANS
 
@@ -400,6 +412,12 @@ automatically be notified of progress on your bug as I make changes.
 =item * optional autovivification (Data::Peek, Scalar::Util, String::Numeric)
 
 =back
+
+=head1 BUGS
+
+Please report any bugs or feature requests to C<bug-Data-Leaf-Walker at rt.cpan.org>, or through
+the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Data-Leaf-Walker>.  I will be notified, and then you'll
+automatically be notified of progress on your bug as I make changes.
 
 =head1 SUPPORT
 
