@@ -65,6 +65,12 @@ Construct a new C<Data::Leaf::Walker> instance.
       };
 
    $walker = Data::Leaf::Walker->new( $data );
+   
+=head3 Options
+
+=item * max_depth: the C<each>, C<keys> and C<values> function will consider any
+value or data structure to be a leaf if it's key path is more than C<max_depth>
+keys deep
 
 =cut
 
