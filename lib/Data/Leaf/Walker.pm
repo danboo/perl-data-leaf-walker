@@ -9,11 +9,11 @@ Data::Leaf::Walker - Walk the leaves of arbitrarily deep nested data structures.
 
 =head1 VERSION
 
-Version 0.10
+Version 0.11
 
 =cut
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 =head1 SYNOPSIS
 
@@ -433,7 +433,7 @@ instance to access the data structure, you should be fine.
 
 =over 3
 
-=item * add max_depth, min_depth, type and twig limiters for C<each>, C<keys>, C<values>
+=item * add type and twig limiters for C<each>, C<keys>, C<values>
 
 =item * optional autovivification (Data::Peek, Scalar::Util, String::Numeric)
 
