@@ -68,11 +68,15 @@ Construct a new C<Data::Leaf::Walker> instance.
    
 =head3 Options
 
+=over 3
+
 =item * max_depth: the C<each>, C<keys> and C<values> methods iterate no deeper
 than C<max_depth> keys deep.
 
 =item * min_depth: the C<each>, C<keys> and C<values> methods iterate no shallower
 than C<min_depth> keys deep.
+
+=back
 
 =cut
 
