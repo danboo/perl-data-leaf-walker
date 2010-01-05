@@ -9,11 +9,11 @@ Data::Leaf::Walker - Walk the leaves of arbitrarily deep nested data structures.
 
 =head1 VERSION
 
-Version 0.02
+Version 0.10
 
 =cut
 
-our $VERSION = '0.02';
+our $VERSION = '0.10';
 
 =head1 SYNOPSIS
 
