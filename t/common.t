@@ -10,7 +10,8 @@ use Data::Leaf::Walker;
 my %opts =
    (
    default => [],
-   max_depth => [ max_depth => 1 ],
+   max_depth => [ max_depth => 3 ],
+   min_depth => [ min_depth => 3 ],
    );
 
 for my $opt_set_name ( keys %opts )

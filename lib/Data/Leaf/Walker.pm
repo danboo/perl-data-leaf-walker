@@ -68,9 +68,11 @@ Construct a new C<Data::Leaf::Walker> instance.
    
 =head3 Options
 
-=item * max_depth: the C<each>, C<keys> and C<values> function will consider any
-value or data structure to be a leaf if it's key path is more than C<max_depth>
-keys deep
+=item * max_depth: the C<each>, C<keys> and C<values> methods iterate no deeper
+than C<max_depth> keys deep.
+
+=item * min_depth: the C<each>, C<keys> and C<values> methods iterate no shallower
+than C<min_depth> keys deep.
 
 =cut
 
@@ -346,7 +348,7 @@ sub _iterate
       return wantarray ? ( $key_path, $val ) : $key_path;
       }
 
-   ## if the value is a HASH, add it to the stack and iterate
+   ## if the value is a HASH/ARRAY, add it to the stack and iterate
    if ( defined $val && ( ref $val eq 'HASH' || ref $val eq 'ARRAY' ) )
       {
       push @{ $self->{_data_stack} }, $val;
@@ -354,6 +356,13 @@ sub _iterate
       return $self->_iterate;
       }
       
+   ## continue iterating if we are less than min_depth
+   my $min_depth = $self->{_opts}{min_depth};
+   if ( defined $min_depth && @{ $self->{_key_path} } + 1 < $min_depth )
+      {
+      return $self->_iterate;
+      }
+
    my $key_path = [ @{ $self->{_key_path} }, $key ];
 
    return wantarray ? ( $key_path, $val ) : $key_path;   
