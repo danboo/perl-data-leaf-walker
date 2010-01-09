@@ -71,7 +71,7 @@ for my $opt_set_name ( keys %opts )
       
       %got_opts = $walker->opts;
       
-      is_deeply( \%got_opts, $opts{$opt_set_name}, "($opt_set_name) opts - empty" );
+      is_deeply( \%got_opts, $opts{$opt_set_name}, "($opt_set_name) opts - post" );
       }
 
    RESET:
