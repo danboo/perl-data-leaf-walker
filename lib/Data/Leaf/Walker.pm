@@ -83,14 +83,16 @@ than C<min_depth> keys deep.
 sub new
    {
    my ( $class, $data, %opts ) = @_;
-   return bless
+   my $self = bless
       {
       _data          => $data,
       _data_stack    => [],
       _key_path      => [],
       _array_tracker => {},
-      _opts          => \%opts,
+      _opts          => {},
       }, $class;
+   $self->opts( %opts );
+   return $self;
    }
 
 =head2 each()
@@ -338,6 +340,37 @@ sub reset
    @{ $self->{_key_path} }      = ();
    
    return;
+   }
+
+=head2 opts()
+
+Change the values of the constructor options. Only given options are affected.
+See C<new()> for a description of the options. Returns the current option hash
+after changes are applied.
+
+   ## change the max_depth
+   $walker->opts( max_depth => 3 );
+   
+   ## get the current options
+   %opts = $walker->opts;
+
+=cut
+
+sub opts
+   {
+   my ( $self, %opts ) = @_;
+
+   if ( CORE::keys %opts )
+      {
+
+      for my $key ( CORE::keys %opts )
+         {
+         $self->{_opts}{$key} = $opts{$key};
+         }
+
+      }
+
+   return %{ $self->{_opts} };
    }
 
 sub _iterate
