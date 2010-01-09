@@ -85,10 +85,11 @@ sub new
    my ( $class, $data, %opts ) = @_;
    return bless
       {
-      _data       => $data,
-      _data_stack => [],
-      _key_path   => [],
-      _opts       => \%opts,
+      _data          => $data,
+      _data_stack    => [],
+      _key_path      => [],
+      _array_tracker => {},
+      _opts          => \%opts,
       }, $class;
    }
 
@@ -311,6 +312,34 @@ sub exists
    
    }
 
+=head2 reset()
+
+Resets the current iterators. This is faster than using the C<keys()> or
+C<values()> methods to do an iterator reset.
+
+   $walker->reset;
+
+=cut
+
+sub reset
+   {
+   my ( $self ) = @_;
+   
+   for my $data ( @{ $self->{_data_stack} } )
+      {
+      if ( ref $data eq 'HASH' )
+         {
+         CORE::keys %{ $data };
+         }
+      }
+
+   %{ $self->{_array_tracker} } = ();
+   @{ $self->{_data_stack} }    = ();
+   @{ $self->{_key_path} }      = ();
+   
+   return;
+   }
+
 sub _iterate
    {
    my ( $self ) = @_;
@@ -319,7 +348,7 @@ sub _iterate
    my $data = ${ $self->{_data_stack} }[-1];
    
    ## iterate on the stack top
-   my ( $key, $val ) = _each($data);
+   my ( $key, $val ) = $self->_each($data);
 
    ## if we're at the end of the stack top
    if ( ! defined $key )
@@ -372,13 +401,9 @@ sub _iterate
    return wantarray ? ( $key_path, $val ) : $key_path;   
    }
 
-{
-   
-my %array_tracker;
-   
 sub _each
    {
-   my ( $data ) = @_;
+   my ( $self, $data ) = @_;
    
    if ( ref $data eq 'HASH' )
       {
@@ -386,16 +411,17 @@ sub _each
       }
    elsif ( ref $data eq 'ARRAY' )
       {
-      $array_tracker{ $data } ||= 0;
-      if ( exists $data->[ $array_tracker{ $data } ] )
+      my $array_tracker = $self->{_array_tracker};
+      $array_tracker->{ $data } ||= 0;
+      if ( exists $data->[ $array_tracker->{ $data } ] )
          {
-         my $index = $array_tracker{ $data };
-         ++ $array_tracker{ $data };
+         my $index = $array_tracker->{ $data };
+         ++ $array_tracker->{ $data };
          return( $index, $data->[ $index ] );
          }
       else
          {
-         $array_tracker{ $data } = 0;
+         $array_tracker->{ $data } = 0;
          return;
          }
       
@@ -406,8 +432,6 @@ sub _each
       }
    
    }
-   
-}
 
 =head1 AUTHOR
 

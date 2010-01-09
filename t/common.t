@@ -9,7 +9,7 @@ use Data::Leaf::Walker;
 
 my %opts =
    (
-   default => [],
+   default   => [],
    max_depth => [ max_depth => 3 ],
    min_depth => [ min_depth => 3 ],
    );
@@ -59,6 +59,19 @@ for my $opt_set_name ( keys %opts )
       );
       
    my $walker = Data::Leaf::Walker->new( \@orig, @{ $opts{$opt_set_name} } );
+
+   RESET:
+      {
+      
+      my @pre = map { [ $walker->each ] } 1 .. 1;
+      
+      $walker->reset;
+      
+      my @post = map { [ $walker->each ] } 1 .. 1;
+      
+      is_deeply( \@post, \@pre, "($opt_set_name) reset" );
+      
+      }
 
    FETCH:
       {
@@ -166,5 +179,5 @@ for my $opt_set_name ( keys %opts )
       is( $ret, 226, "($opt_set_name) delete - return" );
 
       }
-
+   
    }
