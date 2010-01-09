@@ -319,7 +319,11 @@ sub exists
 Resets the current iterators. This is faster than using the C<keys()> or
 C<values()> methods to do an iterator reset.
 
+   ## set the max depth one above the bottom, to get the twig structures
+   $key_path = $walker->each;
+   $walker->opts( max_depth => @{ $key_path } - 1 );
    $walker->reset;
+   @twigs = $walker->values;
 
 =cut
 
