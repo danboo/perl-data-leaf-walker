@@ -63,13 +63,15 @@ for my $opt_set_name ( keys %opts )
    RESET:
       {
       
-      my @pre = map { [ $walker->each ] } 1 .. 1;
+      my @pre = map { [ $walker->each ] } 1 .. 8;
       
       $walker->reset;
       
-      my @post = map { [ $walker->each ] } 1 .. 1;
+      my @post = map { [ $walker->each ] } 1 .. 8;
       
       is_deeply( \@post, \@pre, "($opt_set_name) reset" );
+      
+      $walker->reset;
       
       }
 
