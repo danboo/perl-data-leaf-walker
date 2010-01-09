@@ -9,9 +9,9 @@ use Data::Leaf::Walker;
 
 my %opts =
    (
-   default   => [],
-   max_depth => [ max_depth => 3 ],
-   min_depth => [ min_depth => 3 ],
+   default   => {},
+   max_depth => { max_depth => 3 },
+   min_depth => { min_depth => 3 },
    );
 
 for my $opt_set_name ( keys %opts )
@@ -58,7 +58,21 @@ for my $opt_set_name ( keys %opts )
       [ qw/ 5 / ],
       );
       
-   my $walker = Data::Leaf::Walker->new( \@orig, @{ $opts{$opt_set_name} } );
+   my $walker = Data::Leaf::Walker->new( \@orig, %{ $opts{$opt_set_name} } );
+   
+   OPTS:
+      {
+      
+      my %got_opts = $walker->opts;
+      
+      is_deeply( \%got_opts, $opts{$opt_set_name}, "($opt_set_name) opts - empty" );
+      
+      $walker->opts( %{ $opts{$opt_set_name} } );
+      
+      %got_opts = $walker->opts;
+      
+      is_deeply( \%got_opts, $opts{$opt_set_name}, "($opt_set_name) opts - empty" );
+      }
 
    RESET:
       {
