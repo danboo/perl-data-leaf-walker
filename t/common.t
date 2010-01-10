@@ -58,20 +58,19 @@ for my $opt_set_name ( keys %opts )
       [ qw/ 5 / ],
       );
       
-   my $walker = Data::Leaf::Walker->new( \@orig, %{ $opts{$opt_set_name} } );
+   my $walker = Data::Leaf::Walker->new( \@orig );
    
    OPTS:
       {
       
-      my %got_opts = $walker->opts;
-      
-      is_deeply( \%got_opts, $opts{$opt_set_name}, "($opt_set_name) opts - empty" );
-      
-      $walker->opts( %{ $opts{$opt_set_name} } );
+      my %got_opts = $walker->opts( %{ $opts{$opt_set_name} } );
+
+      is_deeply( \%got_opts, $opts{$opt_set_name}, "($opt_set_name) opts - from set" );
       
       %got_opts = $walker->opts;
       
-      is_deeply( \%got_opts, $opts{$opt_set_name}, "($opt_set_name) opts - post" );
+      is_deeply( \%got_opts, $opts{$opt_set_name}, "($opt_set_name) opts - empty" );
+
       }
 
    RESET:
