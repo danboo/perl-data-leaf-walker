@@ -26,6 +26,9 @@ my @orig =
    128,
    );
 
+## $orig[6] will not exist()   
+$orig[7] = 129;
+
 my @exp_keys =
    (
    [ qw/ 0 / ],
@@ -46,6 +49,8 @@ my @exp_keys =
    [ qw/ 4 aaj 3 aal / ],
    [ qw/ 4 aao / ],
    [ qw/ 5 / ],
+   [ qw/ 6 / ],
+   [ qw/ 7 / ],
    );
    
 my $walker = Data::Leaf::Walker->new( \@orig );
@@ -68,9 +73,10 @@ EACH:
              
    is_deeply( \@keys, \@exp_keys, "each - keys" );
 
+   no warnings 'uninitialized';
    @values = sort @values;
 
-   is_deeply( \@values, [ 111 .. 128 ], "each - values" );
+   is_deeply( \@values, [ undef, 111 .. 129 ], "each - values" );
    
    }
 
@@ -88,7 +94,8 @@ KEYS:
 VALUES:
    {
 
+   no warnings 'uninitialized';
    my @values = sort $walker->values;
-   is_deeply( \@values, [ 111 .. 128 ], "values" );
+   is_deeply( \@values, [ undef, 111 .. 129 ], "values" );
 
    }

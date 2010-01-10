@@ -450,7 +450,7 @@ sub _each
       {
       my $array_tracker = $self->{_array_tracker};
       $array_tracker->{ $data } ||= 0;
-      if ( exists $data->[ $array_tracker->{ $data } ] )
+      if ( $array_tracker->{ $data } <= $#{ $data } )
          {
          my $index = $array_tracker->{ $data };
          ++ $array_tracker->{ $data };
