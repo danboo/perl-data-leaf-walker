@@ -1,5 +1,10 @@
 Revision history for Data-Leaf-Walker
 
+0.21    5/1/2013
+        - bug fix for exists() calls where the queried key path is two or more
+          levels deeper than existing key path
+          (https://github.com/danboo/perl-data-leaf-walker/issues/1)
+
 0.20    Sat Jan  9 23:13:59 2010
         - fix but in _each() handling of auto extended arrays (indexes filled in
           the gap, do not exist())

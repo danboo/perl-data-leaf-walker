@@ -161,6 +161,12 @@ for my $opt_set_name ( keys %opts )
       my $deep = $walker->exists( [ qw/ 3 0 1 potato / ] );
       ok( ! $deep, "($opt_set_name) exists - deep not exist" );
       
+      my $extra_deep = $walker->exists( [ qw/ 3 0 1 potato cake cat / ] );
+      ok( ! $extra_deep, "($opt_set_name) exists - extra deep not exist" );
+
+      my $repeat = $walker->exists( [ qw/ 3 0 1 potato / ] );
+      ok( ! $repeat, "($opt_set_name) exists - repeat deep not exist" );
+
       my $invalid = $walker->exists( [ qw/ 3 0 0 potato / ] );
       ok( ! $invalid, "($opt_set_name) exists - invalid not exist" );
 

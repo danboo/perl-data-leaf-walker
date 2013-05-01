@@ -9,11 +9,11 @@ Data::Leaf::Walker - Walk the leaves of arbitrarily deep nested data structures.
 
 =head1 VERSION
 
-Version 0.20
+Version 0.21
 
 =cut
 
-our $VERSION = '0.20';
+our $VERSION = '0.21';
 
 =head1 SYNOPSIS
 
@@ -293,25 +293,43 @@ sub exists
    {
    my ( $self, $key_path ) = @_;
 
-   my @exists_path = @{ $key_path };
+   my $data = $self->{_data};
    
-   my $twig_key = pop @exists_path;
-   
-   my $twig = $self->fetch( \@exists_path );
-   
-   defined $twig || return;
-   
-   my $type = ref $twig;
-   
-   if ( $type eq 'HASH' )
+   for my $key ( @{ $key_path } )
       {
-      return exists $twig->{ $twig_key };
+
+      my $type = ref $data;
+      
+      if ( $type eq 'ARRAY' )
+         {
+         if ( exists $data->[$key] )
+            {
+            $data = $data->[$key];
+            }
+         else
+            {
+            return;
+            }
+         }
+      elsif ( $type eq 'HASH' )
+         {
+         if ( exists $data->{$key} )
+            {
+            $data = $data->{$key};
+            }
+         else
+            {
+            return;
+            }
+         }
+      else
+         {
+         return;
+         }
+         
       }
-   elsif  ( $type eq 'ARRAY' )
-      {
-      return exists $twig->[ $twig_key ];
-      }
-   
+      
+   return 1;
    }
 
 =head2 reset()

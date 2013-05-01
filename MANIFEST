@@ -9,7 +9,6 @@ t/pod-coverage.t
 t/pod.t
 t/default.t
 t/max_depth.t
-t/min_depth.t
 t/combo_depth.t
 t/common.t
 t/twig.t
